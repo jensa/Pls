@@ -8,9 +8,8 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "Pls";
 		cfg.useGL20 = false;
-		cfg.width = 600;
-		cfg.height = 800;
-		
+		cfg.width = 800;
+		cfg.height = 600;
 		
 		new LwjglApplication(new Pls(), cfg);
 	}
