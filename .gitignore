@@ -1,5 +1,11 @@
 *.class
 
 # Package Files #
+*.jar
 *.war
 *.ear
+
+#Eclipse files
+*.cache
+*.properties
+*.classpath
