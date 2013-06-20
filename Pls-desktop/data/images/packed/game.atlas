@@ -5,8 +5,50 @@ filter: Nearest,Nearest
 repeat: none
 background
   rotate: false
-  xy: 1, 1
+  xy: 1, 205
   size: 800, 600
   orig: 800, 600
+  offset: 0, 0
+  index: -1
+obstacle_stone
+  rotate: false
+  xy: 1, 103
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+obstacle_tree
+  rotate: false
+  xy: 803, 705
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+obstacle_water
+  rotate: false
+  xy: 1, 1
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+testmarker
+  rotate: false
+  xy: 103, 103
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+testmarker_hundra
+  rotate: false
+  xy: 103, 103
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+testmarker_femtio
+  rotate: false
+  xy: 803, 603
+  size: 100, 100
+  orig: 100, 100
   offset: 0, 0
   index: -1

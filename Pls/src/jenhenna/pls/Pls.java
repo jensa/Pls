@@ -1,5 +1,7 @@
 package jenhenna.pls;
 
+import Utils.Coord;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
@@ -9,34 +11,47 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
+
+import controller.ClickHandler;
 
 public class Pls implements ApplicationListener {
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private Texture texture;
-	private Sprite backgroundTexture;
+	private BattleScene battle;
+	
+	private Array<Sprite> testMarkers;
 	
 	@Override
 	public void create() {		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		TextureAtlas atlas = GraphicsInitializer.getTextures ();
-		
+		battle = new BattleScene (w, h, 15, atlas);
+		Gdx.input.setInputProcessor(new ClickHandler (battle));
 		
 		camera = new OrthographicCamera(w, h);
-		backgroundTexture = atlas.createSprite ("background");
 		
 		batch = new SpriteBatch();
 		
 		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
-		TextureRegion region = new TextureRegion(texture, 0, 0, 512, 275);
-		backgroundTexture.setSize (w, h);
-//		sprite.setSize(0.9f, 0.9f * sprite.getHeight() / sprite.getWidth());
-		backgroundTexture.setOrigin(0, 0);
-		backgroundTexture.setPosition(-w/2, -h/2);
+		testMarkers = new Array<Sprite> ();//getTestMarkers (atlas);
+	}
+
+	private Array<Sprite> getTestMarkers (TextureAtlas atlas) {
+		Sprite femtio = atlas.createSprite ("testmarker_femtio");
+		Coord c = Coord.getTransformedSpriteCoords (599, 588, femtio.getHeight ());
+		femtio.setPosition (c.x, c.y);
+		
+		Sprite hundra = atlas.createSprite ("testmarker_hundra");
+		hundra.setPosition (100, 100);
+		Array<Sprite> ret = new Array<Sprite> ();
+		ret.add (hundra);
+		ret.add (femtio);
+		return ret;
 	}
 
 	@Override
@@ -52,7 +67,11 @@ public class Pls implements ApplicationListener {
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		backgroundTexture.draw(batch);
+		battle.getBackground ().draw (batch);
+		for (Sprite sp : battle.getBattleSprites ())
+			sp.draw(batch);
+		for (Sprite sp : testMarkers)
+			sp.draw (batch);
 		batch.end();
 	}
 
