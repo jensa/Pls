@@ -1,6 +1,8 @@
 package entities;
 import jenhenna.pls.GridArea;
 
+import Utils.Coord;
+
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
 
@@ -30,4 +32,16 @@ public interface BattleEntity {
 	 * @return this entity's sprite, with surface coordinates set
 	 */
 	public Sprite getSprite ();
+	
+	/**
+	 * 
+	 * @return the ID of this entity
+	 */
+	public int getID ();
+	
+	/**
+	 * Set this entity's position, in surface coords
+	 * @param c
+	 */
+	public void setPosition (Coord c);
 }
