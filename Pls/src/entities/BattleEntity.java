@@ -44,4 +44,8 @@ public interface BattleEntity {
 	 * @param c
 	 */
 	public void setPosition (Coord c);
+	
+	public int getGridHeight ();
+	
+	public int getGridWidth ();
 }

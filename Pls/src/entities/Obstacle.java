@@ -12,10 +12,20 @@ public class Obstacle implements BattleEntity{
 	private Sprite sprite;
 	private int id;
 	public Sprite altSprite;
+	private int gridW, gridH;
 
-	public Obstacle (Sprite s, int id){
+	public Obstacle (Sprite s, int id, int width, int height){
 		this.sprite = s;
 		this.id = id;
+		this.gridH = height;
+		this.gridW = width;
+	}
+	
+	public Obstacle (Obstacle o, int ID){
+		this.sprite = new Sprite (o.getSprite ());
+		this.id = ID;
+		this.gridH = o.getGridHeight ();
+		this.gridW = o.getGridWidth ();
 	}
 
 	@Override
@@ -57,6 +67,16 @@ public class Obstacle implements BattleEntity{
 	public void setPosition (Coord c) {
 		sprite.setPosition (c.x, c.y);
 		
+	}
+
+	@Override
+	public int getGridHeight () {
+		return gridH;
+	}
+
+	@Override
+	public int getGridWidth () {
+		return gridW;
 	}
 
 }

@@ -64,10 +64,14 @@ public class Pls implements ApplicationListener {
 	public void render() {		
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		battle.getBackground ().draw (batch);
+		batch.end ();
+		battle.getDebugGrid ();
+		batch.begin ();
 		for (Sprite sp : battle.getBattleSprites ())
 			sp.draw(batch);
 		for (Sprite sp : testMarkers)

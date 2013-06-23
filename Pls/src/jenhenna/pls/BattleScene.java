@@ -1,30 +1,26 @@
 package jenhenna.pls;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 import Utils.Constants;
 import Utils.Coord;
-import Utils.Helper;
+import Utils.GameReader;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
 
 import entities.BattleEntity;
 import entities.Obstacle;
 
 public class BattleScene {
-	private int entityID;
 	
 	final int OBSTACLE = 1;
 	final int MAX_OBSTACLES = 5;
-	//TODO create obstacles from config? or hardcoded defined obstacles
-	final int OBSTACLE_WIDTH = 4;
-	final int OBSTACLE_HEIGHT = 4;
 	
 	private int[][] battleGrid;
 	private Map<Integer, BattleEntity> entities = new HashMap<Integer, BattleEntity> ();
@@ -41,10 +37,8 @@ public class BattleScene {
 	public int cellSize;
 	
 	Sprite bg;
-	private Array<Sprite> staticSprites = new Array<Sprite> ();
 	
 	public BattleScene (double screenW, double screenH, int cellsize, TextureAtlas atlas){
-		entityID = 0;
 		this.cellSize = cellsize;
 		this.h = (float) screenH; this.w = (float) screenW;
 		wI = (int) Math.floor (w);
@@ -57,8 +51,21 @@ public class BattleScene {
 				battleGrid[x][y] = -1;
 			}
 		}
-		initStatics (atlas);
+		initStatics (atlas, new GameReader (atlas));
 		initBackground (atlas);
+	}
+	
+	public void getDebugGrid (){
+		ShapeRenderer r = new ShapeRenderer ();
+		r.begin (ShapeType.Line);
+		r.setColor (0f, 0f, 0f, 255);
+		for (int x=0;x<=w;x+=cellSize){
+			r.line (x, 0, x, h);
+		}
+		for (int y=0;y<=h;y+=cellSize){
+			r.line (0, y, w, y);
+		}
+		r.end ();
 	}
 	
 	private void initBackground (TextureAtlas atlas) {
@@ -69,40 +76,30 @@ public class BattleScene {
 		
 	}
 
-	private void initStatics (TextureAtlas atlas) {
+	private void initStatics (TextureAtlas atlas, GameReader reader) {
 		//set obstacles
 		Random r = new Random ();
 		int numObstacles = r.nextInt (MAX_OBSTACLES);
 		numObstacles = 5;
-		File images = new File (GraphicsInitializer.imagePath);
-		Array<Sprite> obstacleSprites = new Array<Sprite> ();
-		for (String f : images.list ()){
-			if (!f.contains (".") || !f.contains ("obstacle"))
-				continue;
-			String name = f.substring (0, f.indexOf ("."));
-			obstacleSprites.add (new Sprite (atlas.createSprite (name)));
-		}
-		
+		Array<Obstacle> obstacles = reader.readObstacles (cellSize);
 		for (int i=0;i<numObstacles;i++){
-			addObstacle (obstacleSprites, r);
-			
+			Obstacle original = obstacles.get (r.nextInt (obstacles.size));
+			Obstacle copy = new Obstacle (original, reader.getCurrentIDCount ());
+			addObstacleAtRandomSpot (copy, r);
 		}
 		printGrid ();
 	}
 	
-	private void addObstacle (Array<Sprite> obstacleSprites, Random r) {
-		Sprite obstacleSprite = new Sprite (obstacleSprites.get (r.nextInt (obstacleSprites.size)));
+	private void addObstacleAtRandomSpot (Obstacle o, Random r) {
 		int xLimit = gridWidth / 5;
 		int yLimit = gridHeight / 10;
 		int xPos = r.nextInt (gridWidth-xLimit*2)+xLimit;
 		int yPos = r.nextInt (gridHeight-yLimit*2)+yLimit;
-		obstacleSprite.setSize (cellSize*OBSTACLE_WIDTH, cellSize*OBSTACLE_HEIGHT);
-		Obstacle obstacle = new Obstacle (obstacleSprite, entityID++);
-		Coord pos = getDrawingCoordinates (xPos, yPos, obstacleSprite.getHeight ());
-		obstacle.setPosition (pos);
-		boolean isSet = setGridObstacle (xPos, yPos, OBSTACLE_WIDTH, OBSTACLE_HEIGHT, obstacle.getID ());
+		Coord pos = getDrawingCoordinates (xPos, yPos, o.getSprite ().getHeight ());
+		o.setPosition (pos);
+		boolean isSet = setGridObstacle (xPos, yPos, o.getGridWidth (), o.getGridHeight (), o.getID ());
 		if (isSet){
-			entities.put (obstacle.getID (), obstacle);
+			entities.put (o.getID (), o);
 		}
 	}
 
@@ -112,7 +109,10 @@ public class BattleScene {
 		for(int i=0;i<gridHeight;i++){
 			System.out.print ("|");
 			for (int j=0;j<gridWidth;j++){
-				System.out.print ("["+battleGrid[j][i] + "]");
+				if (battleGrid[j][i] < 0 )
+					System.out.print ("[Ø]");
+				else
+					System.out.print ("["+battleGrid[j][i] + "]");
 			}
 			System.out.print ("|\n");
 		}
@@ -122,6 +122,13 @@ public class BattleScene {
 	private boolean setGridObstacle (int xPos, int yPos, int w, int h, int id) {
 		if (h+yPos > gridHeight || w+xPos > gridWidth)
 			return false;
+		for (int y=yPos;y<h+yPos;y++){
+			for (int x=xPos;x<w+xPos;x++){
+				if (battleGrid[x][y] != -1)
+					return false;
+			}
+		}
+		
 		for (int y=yPos;y<h+yPos;y++){
 			for (int x=xPos;x<w+xPos;x++){
 				battleGrid[x][y] = id;

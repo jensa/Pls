@@ -1,9 +1,9 @@
-[Stone]
+[stone]
 img=stone
 width=3
 height=1
 
-[Tree]
+[tree]
 img=tree
-height=4
 width=4
+height=4
