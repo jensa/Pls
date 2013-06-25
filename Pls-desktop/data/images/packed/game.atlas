@@ -67,7 +67,7 @@ repeat: none
 background
   rotate: false
   xy: 1, 1
-  size: 640, 480
-  orig: 640, 480
+  size: 800, 556
+  orig: 800, 556
   offset: 0, 0
   index: -1

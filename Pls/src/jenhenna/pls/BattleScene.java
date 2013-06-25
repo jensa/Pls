@@ -63,6 +63,8 @@ public class BattleScene {
 		initTestUnits (atlas, 
 				new Hero (Test.getTestUnits (reader.readBattleUnits (cellSize))), 
 				new Hero (Test.getTestUnits (reader.readBattleUnits (cellSize))));
+
+		printGrid ();
 	}
 	
 	public void getDebugGrid (){
@@ -98,7 +100,6 @@ public class BattleScene {
 			Obstacle copy = new Obstacle (original, reader.getCurrentIDCount ());
 			addObstacleAtRandomSpot (copy, r);
 		}
-		printGrid ();
 	}
 	
 	private void initTestUnits (TextureAtlas atlas, Hero h1, Hero h2){
@@ -111,7 +112,7 @@ public class BattleScene {
 			//set unit position
 			Coord pos = getDrawingCoordinates (x, y, b.getSprite ().getHeight ());
 			b.setPosition (pos);
-			setGridObject (x+b.getGridWidth ()-2, y+b.getGridHeight ()-1, b.getGridWidth (), b.getGridHeight (), b.getID ());
+			setGridObject (x, y+b.getGridHeight ()+1, b.getGridWidth (), b.getGridHeight (), b.getID ());
 			y += 3;
 			entities.put (b.getID (), b);
 		}
@@ -123,7 +124,7 @@ public class BattleScene {
 			//set unit position
 			Coord pos = getDrawingCoordinates (x, y, b.getSprite ().getHeight ());
 			b.setPosition (pos);
-			setGridObject (x, y+b.getGridHeight ()-2, b.getGridWidth (), b.getGridHeight (), b.getID ());
+			setGridObject (x, y+b.getGridHeight ()+1, b.getGridWidth (), b.getGridHeight (), b.getID ());
 			y += 3;
 			entities.put (b.getID (), b);
 		}
