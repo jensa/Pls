@@ -1,6 +1,6 @@
 package Utils;
 
 public class Constants {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 
 }

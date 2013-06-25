@@ -28,7 +28,8 @@ public class Pls implements ApplicationListener {
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		TextureAtlas atlas = GraphicsInitializer.getTextures ();
-		battle = new BattleScene (w, h, 15, atlas);
+		battle = new BattleScene (w, h, 30, atlas);
+		//simply change the click handler when we go out of battle
 		Gdx.input.setInputProcessor(new ClickHandler (battle));
 		
 		camera = new OrthographicCamera(w, h);

@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import Hero.Hero;
 import Utils.Constants;
 import Utils.Coord;
 import Utils.GameReader;
+import Utils.Test;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -15,12 +18,15 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
 
 import entities.BattleEntity;
+import entities.BattleUnit;
 import entities.Obstacle;
 
 public class BattleScene {
 	
 	final int OBSTACLE = 1;
-	final int MAX_OBSTACLES = 5;
+	final int MAX_OBSTACLES = 4;
+	final int UNIT_PLACEMENT_PARTITION = 4;
+	final int TOP_BOTTOM_SPACE_PARTITION = 6;
 	
 	private int[][] battleGrid;
 	private Map<Integer, BattleEntity> entities = new HashMap<Integer, BattleEntity> ();
@@ -51,19 +57,25 @@ public class BattleScene {
 				battleGrid[x][y] = -1;
 			}
 		}
-		initStatics (atlas, new GameReader (atlas));
+		GameReader reader = new GameReader (atlas);
+		initStatics (atlas, reader);
 		initBackground (atlas);
+		initTestUnits (atlas, 
+				new Hero (Test.getTestUnits (reader.readBattleUnits (cellSize))), 
+				new Hero (Test.getTestUnits (reader.readBattleUnits (cellSize))));
 	}
 	
 	public void getDebugGrid (){
 		ShapeRenderer r = new ShapeRenderer ();
 		r.begin (ShapeType.Line);
+		int maxW = Gdx.graphics.getWidth ();
+		int maxH = Gdx.graphics.getHeight ();
 		r.setColor (0f, 0f, 0f, 255);
-		for (int x=0;x<=w;x+=cellSize){
-			r.line (x, 0, x, h);
+		for (int x=0;x<=maxW;x+=cellSize){
+			r.line (x, 0, x, maxH);
 		}
-		for (int y=0;y<=h;y+=cellSize){
-			r.line (0, y, w, y);
+		for (int y=0;y<=maxH;y+=cellSize){
+			r.line (0, y, maxW, y);
 		}
 		r.end ();
 	}
@@ -80,7 +92,6 @@ public class BattleScene {
 		//set obstacles
 		Random r = new Random ();
 		int numObstacles = r.nextInt (MAX_OBSTACLES);
-		numObstacles = 5;
 		Array<Obstacle> obstacles = reader.readObstacles (cellSize);
 		for (int i=0;i<numObstacles;i++){
 			Obstacle original = obstacles.get (r.nextInt (obstacles.size));
@@ -90,14 +101,42 @@ public class BattleScene {
 		printGrid ();
 	}
 	
+	private void initTestUnits (TextureAtlas atlas, Hero h1, Hero h2){
+		Array<BattleUnit> leftUnits = h1.getBattleUnits ();
+		Array<BattleUnit> rightUnits = h2.getBattleUnits ();
+		int x = 3;
+		int y = 3;
+		for (BattleUnit b : leftUnits){
+			b.initSprite (atlas, true);
+			//set unit position
+			Coord pos = getDrawingCoordinates (x, y, b.getSprite ().getHeight ());
+			b.setPosition (pos);
+			setGridObject (x+b.getGridWidth ()-2, y+b.getGridHeight ()-1, b.getGridWidth (), b.getGridHeight (), b.getID ());
+			y += 3;
+			entities.put (b.getID (), b);
+		}
+		
+		x = gridWidth - 3;
+		y = 3;
+		for (BattleUnit b : rightUnits){
+			b.initSprite (atlas, false);
+			//set unit position
+			Coord pos = getDrawingCoordinates (x, y, b.getSprite ().getHeight ());
+			b.setPosition (pos);
+			setGridObject (x, y+b.getGridHeight ()-2, b.getGridWidth (), b.getGridHeight (), b.getID ());
+			y += 3;
+			entities.put (b.getID (), b);
+		}
+	}
+	
 	private void addObstacleAtRandomSpot (Obstacle o, Random r) {
-		int xLimit = gridWidth / 5;
-		int yLimit = gridHeight / 10;
+		int xLimit = gridWidth / UNIT_PLACEMENT_PARTITION;
+		int yLimit = gridHeight / TOP_BOTTOM_SPACE_PARTITION;
 		int xPos = r.nextInt (gridWidth-xLimit*2)+xLimit;
 		int yPos = r.nextInt (gridHeight-yLimit*2)+yLimit;
 		Coord pos = getDrawingCoordinates (xPos, yPos, o.getSprite ().getHeight ());
 		o.setPosition (pos);
-		boolean isSet = setGridObstacle (xPos, yPos, o.getGridWidth (), o.getGridHeight (), o.getID ());
+		boolean isSet = setGridObject (xPos, yPos, o.getGridWidth (), o.getGridHeight (), o.getID ());
 		if (isSet){
 			entities.put (o.getID (), o);
 		}
@@ -118,8 +157,8 @@ public class BattleScene {
 		}
 	}
 
-	//Set obstacles in the battle grid, return false if it can't fit
-	private boolean setGridObstacle (int xPos, int yPos, int w, int h, int id) {
+	//Set objects in the battle grid, return false if it can't fit
+	private boolean setGridObject (int xPos, int yPos, int w, int h, int id) {
 		if (h+yPos > gridHeight || w+xPos > gridWidth)
 			return false;
 		for (int y=yPos;y<h+yPos;y++){
@@ -178,7 +217,11 @@ public class BattleScene {
 		} else{
 			GridArea area = marked.getEffectArea ();
 			Array<BattleEntity> ents = getAffectedEntities (area);
-			marked.actionPerformedOn (ents); 
+			boolean finished = marked.actionPerformedOn (ents); 
+			//TESTING ONLY
+			finished = true;
+			if (finished)
+				marked = null;
 		}
 	}
 	

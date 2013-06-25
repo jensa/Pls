@@ -1,9 +1,7 @@
 [stone]
-img=stone
-width=3
-height=1
+image_name=stone
+grid_dimensions=3,1
 
 [tree]
-img=tree
-width=4
-height=4
+image_name=tree
+grid_dimensions=4,4
